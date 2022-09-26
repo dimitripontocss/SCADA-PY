@@ -1,0 +1,705 @@
+#:kivy 2.1.0
+
+<ModbusPopup>:
+    title: 'Configurações MODBUS'
+    size_hint_y: 0.45
+    size_hint_x: 0.4
+    heigth: 300
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols:2
+            rows:2
+            Label:
+                text: 'IP'
+                font_size: 14
+            TextInput:
+                id: txt_ip
+                text: '127.0.0.1'
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+            Label:
+                text: 'PORTA'
+                font_size: 14
+            TextInput:
+                id: txt_porta
+                text: '502'
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            heigth: 30
+            Button:
+                size_hint_y: None
+                heigth: 30
+                text: 'Conectar' 
+                on_release:
+                    root.clearInfo()
+                    app.root.startDataRead(txt_ip.text, int(txt_porta.text))
+            Button:
+                size_hint_y: None
+                heigth: 30
+                text: 'Fechar'
+                on_release:
+                    root.dismiss()
+                    root.clearInfo()
+
+
+
+
+<ScanPopup>:
+    title: 'Configurações ScanTime'
+    size_hint_y: 0.4
+    size_hint_x: 0.4
+    heigth: 150
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols:2
+            rows:1
+            Label:
+                text: 'ScanTime [ms]'
+                font_size: 14
+            TextInput:
+                id: txt_st
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                size_hint_y: None
+                heigth: 40
+                text: 'Configurar'
+                on_release:
+                    app.root._scan_time = int(txt_st.text)
+                    print(app.root._scan_time)
+            Button:
+                size_hint_y: None
+                heigth: 40
+                text: 'Fechar'
+                on_release:
+                    root.dismiss()
+
+<SetPointPopup>:
+    title: 'Configurações SetPoint'
+    size_hint_y: 0.4
+    size_hint_x: 0.4
+    heigth: 150
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols:2
+            rows:1
+            Label:
+                text: 'Nível desejado em [L]'
+                font_size: 14
+            TextInput:
+                id: txt_sp
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                size_hint_y: None
+                heigth: 40
+                text: 'Configurar'
+                on_release:
+                    app.root._setPoint = int(txt_sp.text)
+                    app.root.ids.setpoint.text = str(txt_sp.text)
+                    print(app.root._setPoint)
+            Button:
+                size_hint_y: None
+                heigth: 40
+                text: 'Fechar'
+                on_release:
+                    root.dismiss()
+
+<DataGraphPopup>:
+    title: "Gráfico do nível do reservatorio"
+    BoxLayout:
+        orientation: 'vertical'
+        TimeSeriesGraph:
+            id: nGraph
+            xlabel: 'Horário'
+            ylabel: 'Nível [L]'
+            background_color: 0.5,0.5,0.5,0.5
+            x_ticks_minor: 1
+            x_ticks_major: 5
+            y_ticks_major: 100
+            y_grid_label: True
+            x_grid_label: True
+            padding: 5
+            x_grid: True
+            y_grid: True
+            xmin: 0
+            ymin: 0
+            ymax: 1000
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1,0.05)
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint: (0.5,1)
+                Label:
+                    size_hint: (0.3,1)
+                    text: "Número de pontos do gráfico"
+                LabeledCheckBoxDataGraph:
+                    id: mp20
+                    on_kv_post:
+                        self.ids.label.text = '20'
+                        self.ids.checkbox.group = 'cb_group'
+                        self.ids.checkbox.active = True
+                LabeledCheckBoxDataGraph:
+                    id: mp50
+                    on_kv_post:
+                        self.ids.label.text = '50'
+                        self.ids.checkbox.group = 'cb_group'
+                LabeledCheckBoxDataGraph:
+                    id: mp100
+                    on_kv_post:
+                        self.ids.label.text = '100'
+                        self.ids.checkbox.group = 'cb_group'
+            Button:
+                text: "Fechar"
+                size_hint: (0.2,1)
+                on_release:
+                    root.dismiss()
+
+
+<LabeledCheckBoxDataGraph>:
+    orientation: 'horizontal'
+    size_hint: (0.1,1)
+    CheckBox:
+        id: checkbox
+        on_active: 
+            app.root._nGraph.ids.nGraph.setMaxPoints(int(label.text),0) if app.root is not None else None
+            
+    Label:
+        id: label
+
+<DataGraphVZPopup>:
+    title: "Gráfico da vazão de entrada"
+    BoxLayout:
+        orientation: 'vertical'
+        TimeSeriesGraph:
+            id: vGraph
+            xlabel: 'Horário'
+            ylabel: 'Vazão [L]'
+            background_color: 0.5,0.5,0.5,0.5
+            x_ticks_minor: 1
+            x_ticks_major: 5
+            y_ticks_major: 1
+            y_grid_label: True
+            x_grid_label: True
+            padding: 5
+            x_grid: True
+            y_grid: True
+            xmin: 0
+            ymin: 0
+            ymax: 10
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1,0.05)
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint: (0.5,1)
+                Label:
+                    size_hint: (0.3,1)
+                    text: "Número de pontos do gráfico"
+                LabeledCheckBoxDataGraphVZ:
+                    id: mp20
+                    on_kv_post:
+                        self.ids.label.text = '20'
+                        self.ids.checkbox.group = 'cb_group'
+                        self.ids.checkbox.active = True
+                LabeledCheckBoxDataGraphVZ:
+                    id: mp50
+                    on_kv_post:
+                        self.ids.label.text = '50'
+                        self.ids.checkbox.group = 'cb_group'
+                LabeledCheckBoxDataGraphVZ:
+                    id: mp100
+                    on_kv_post:
+                        self.ids.label.text = '100'
+                        self.ids.checkbox.group = 'cb_group'
+            Button:
+                text: "Fechar"
+                size_hint: (0.2,1)
+                on_release:
+                    root.dismiss()
+
+
+<LabeledCheckBoxDataGraphVZ>:
+    orientation: 'horizontal'
+    size_hint: (0.1,1)
+    CheckBox:
+        id: checkbox
+        on_active: 
+            app.root._vGraph.ids.vGraph.setMaxPoints(int(label.text),0) if app.root is not None else None      
+    Label:
+        id: label
+
+<HistGraphPopup>:
+    title: "Historico do nível do reservatorio"
+    BoxLayout:
+        orientation: 'vertical'
+        TimeSeriesGraph:
+            id: graph
+            xlabel: 'Horário'
+            ylabel: 'Nível (L)'
+            background_color: 0.5,0.5,0.5,0.5
+            x_ticks_minor: 1
+            x_ticks_major: 5
+            y_ticks_major: 100
+            y_grid_label: True
+            x_grid_label: True
+            padding: 5
+            x_grid: True
+            y_grid: True
+            xmin: 0
+            ymin: 0
+            ymax: 1000
+        BoxLayout:
+            id: sensores
+            orientation: 'horizontal'
+            size_hint: (1,0.1)
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1,0.1)
+            Label:
+                text: 'Timestamp inicial \r\n [size=12] (DD/MM/AAAA HH:MM:SS) [/size]'
+                halign: 'center'
+                markup: True
+            TextInput:
+                id: txt_init_time
+                size_hint: (1,0.8)
+                halign: 'center'
+                valign: 'middle'
+                multiline: False
+            Label:
+                text: 'Timestamp final \r\n [size=12] (DD/MM/AAAA HH:MM:SS) [/size]'
+                halign: 'center'
+                markup: True
+            TextInput:
+                id: txt_final_time
+                size_hint: (1,0.8)
+                halign: 'center'
+                valign: 'middle'
+                multiline: False
+            Button:
+                text: "Fechar"
+                size_hint: (1,0.8)
+                on_release:
+                    root.dismiss()
+
+
+<LabeledCheckBoxHistGraph>:
+    orientation: 'horizontal'
+    size_hint: (0.05,1)
+    CheckBox:
+        id: checkbox
+        on_active: app.root.getDataDB()
+    Label:
+        id: label
+        font_size: 12
+        bold: True
+
+<MotorPopup>:
+    title: 'Configurações Motor'
+    size_hint_y: 0.45
+    size_hint_x: 0.4
+    heigth: 300
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols:2
+            rows:2
+            Label:
+                text: 'Frequência do motor'
+                font_size: 14
+            TextInput:
+                id: txt_freq
+                text: ''
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+            Label:
+                text: 'Tempo de partida do motor'
+                font_size: 13
+            TextInput:
+                id: txt_t_part
+                text: ''
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            heigth: 30
+            Button:
+                si#:kivy 2.1.0
+
+<ModbusPopup>:
+    title: 'Configurações MODBUS'
+    size_hint_y: 0.45
+    size_hint_x: 0.4
+    heigth: 300
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols:2
+            rows:2
+            Label:
+                text: 'IP'
+                font_size: 14
+            TextInput:
+                id: txt_ip
+                text: '127.0.0.1'
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+            Label:
+                text: 'PORTA'
+                font_size: 14
+            TextInput:
+                id: txt_porta
+                text: '502'
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            heigth: 30
+            Button:
+                size_hint_y: None
+                heigth: 30
+                text: 'Conectar' 
+                on_release:
+                    root.clearInfo()
+                    app.root.startDataRead(txt_ip.text, int(txt_porta.text))
+            Button:
+                size_hint_y: None
+                heigth: 30
+                text: 'Fechar'
+                on_release:
+                    root.dismiss()
+                    root.clearInfo()
+
+
+
+
+<ScanPopup>:
+    title: 'Configurações ScanTime'
+    size_hint_y: 0.4
+    size_hint_x: 0.4
+    heigth: 150
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols:2
+            rows:1
+            Label:
+                text: 'ScanTime [ms]'
+                font_size: 14
+            TextInput:
+                id: txt_st
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                size_hint_y: None
+                heigth: 40
+                text: 'Configurar'
+                on_release:
+                    app.root._scan_time = int(txt_st.text)
+                    print(app.root._scan_time)
+            Button:
+                size_hint_y: None
+                heigth: 40
+                text: 'Fechar'
+                on_release:
+                    root.dismiss()
+
+<SetPointPopup>:
+    title: 'Configurações SetPoint'
+    size_hint_y: 0.4
+    size_hint_x: 0.4
+    heigth: 150
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols:2
+            rows:1
+            Label:
+                text: 'Nível desejado em [L]'
+                font_size: 14
+            TextInput:
+                id: txt_sp
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                size_hint_y: None
+                heigth: 40
+                text: 'Configurar'
+                on_release:
+                    app.root._setPoint = int(txt_sp.text)
+                    app.root.ids.setpoint.text = str(txt_sp.text)
+                    print(app.root._setPoint)
+            Button:
+                size_hint_y: None
+                heigth: 40
+                text: 'Fechar'
+                on_release:
+                    root.dismiss()
+
+<DataGraphPopup>:
+    title: "Gráfico do nível do reservatorio"
+    BoxLayout:
+        orientation: 'vertical'
+        TimeSeriesGraph:
+            id: nGraph
+            xlabel: 'Horário'
+            ylabel: 'Nível [L]'
+            background_color: 0.5,0.5,0.5,0.5
+            x_ticks_minor: 1
+            x_ticks_major: 5
+            y_ticks_major: 100
+            y_grid_label: True
+            x_grid_label: True
+            padding: 5
+            x_grid: True
+            y_grid: True
+            xmin: 0
+            ymin: 0
+            ymax: 1000
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1,0.05)
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint: (0.5,1)
+                Label:
+                    size_hint: (0.3,1)
+                    text: "Número de pontos do gráfico"
+                LabeledCheckBoxDataGraph:
+                    id: mp20
+                    on_kv_post:
+                        self.ids.label.text = '20'
+                        self.ids.checkbox.group = 'cb_group'
+                        self.ids.checkbox.active = True
+                LabeledCheckBoxDataGraph:
+                    id: mp50
+                    on_kv_post:
+                        self.ids.label.text = '50'
+                        self.ids.checkbox.group = 'cb_group'
+                LabeledCheckBoxDataGraph:
+                    id: mp100
+                    on_kv_post:
+                        self.ids.label.text = '100'
+                        self.ids.checkbox.group = 'cb_group'
+            Button:
+                text: "Fechar"
+                size_hint: (0.2,1)
+                on_release:
+                    root.dismiss()
+
+
+<LabeledCheckBoxDataGraph>:
+    orientation: 'horizontal'
+    size_hint: (0.1,1)
+    CheckBox:
+        id: checkbox
+        on_active: 
+            app.root._nGraph.ids.nGraph.setMaxPoints(int(label.text),0) if app.root is not None else None
+            
+    Label:
+        id: label
+
+<DataGraphVZPopup>:
+    title: "Gráfico da vazão de entrada"
+    BoxLayout:
+        orientation: 'vertical'
+        TimeSeriesGraph:
+            id: vGraph
+            xlabel: 'Horário'
+            ylabel: 'Vazão [L]'
+            background_color: 0.5,0.5,0.5,0.5
+            x_ticks_minor: 1
+            x_ticks_major: 5
+            y_ticks_major: 1
+            y_grid_label: True
+            x_grid_label: True
+            padding: 5
+            x_grid: True
+            y_grid: True
+            xmin: 0
+            ymin: 0
+            ymax: 10
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1,0.05)
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint: (0.5,1)
+                Label:
+                    size_hint: (0.3,1)
+                    text: "Número de pontos do gráfico"
+                LabeledCheckBoxDataGraphVZ:
+                    id: mp20
+                    on_kv_post:
+                        self.ids.label.text = '20'
+                        self.ids.checkbox.group = 'cb_group'
+                        self.ids.checkbox.active = True
+                LabeledCheckBoxDataGraphVZ:
+                    id: mp50
+                    on_kv_post:
+                        self.ids.label.text = '50'
+                        self.ids.checkbox.group = 'cb_group'
+                LabeledCheckBoxDataGraphVZ:
+                    id: mp100
+                    on_kv_post:
+                        self.ids.label.text = '100'
+                        self.ids.checkbox.group = 'cb_group'
+            Button:
+                text: "Fechar"
+                size_hint: (0.2,1)
+                on_release:
+                    root.dismiss()
+
+
+<LabeledCheckBoxDataGraphVZ>:
+    orientation: 'horizontal'
+    size_hint: (0.1,1)
+    CheckBox:
+        id: checkbox
+        on_active: 
+            app.root._vGraph.ids.vGraph.setMaxPoints(int(label.text),0) if app.root is not None else None      
+    Label:
+        id: label
+
+<HistGraphPopup>:
+    title: "Historico do nível do reservatorio"
+    BoxLayout:
+        orientation: 'vertical'
+        TimeSeriesGraph:
+            id: graph
+            xlabel: 'Horário'
+            ylabel: 'Nível (L)'
+            background_color: 0.5,0.5,0.5,0.5
+            x_ticks_minor: 1
+            x_ticks_major: 5
+            y_ticks_major: 100
+            y_grid_label: True
+            x_grid_label: True
+            padding: 5
+            x_grid: True
+            y_grid: True
+            xmin: 0
+            ymin: 0
+            ymax: 1000
+        BoxLayout:
+            id: sensores
+            orientation: 'horizontal'
+            size_hint: (1,0.1)
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1,0.1)
+            Label:
+                text: 'Timestamp inicial \r\n [size=12] (DD/MM/AAAA HH:MM:SS) [/size]'
+                halign: 'center'
+                markup: True
+            TextInput:
+                id: txt_init_time
+                size_hint: (1,0.8)
+                halign: 'center'
+                valign: 'middle'
+                multiline: False
+            Label:
+                text: 'Timestamp final \r\n [size=12] (DD/MM/AAAA HH:MM:SS) [/size]'
+                halign: 'center'
+                markup: True
+            TextInput:
+                id: txt_final_time
+                size_hint: (1,0.8)
+                halign: 'center'
+                valign: 'middle'
+                multiline: False
+            Button:
+                text: "Fechar"
+                size_hint: (1,0.8)
+                on_release:
+                    root.dismiss()
+
+
+<LabeledCheckBoxHistGraph>:
+    orientation: 'horizontal'
+    size_hint: (0.05,1)
+    CheckBox:
+        id: checkbox
+        on_active: app.root.getDataDB()
+    Label:
+        id: label
+        font_size: 12
+        bold: True
+
+<MotorPopup>:
+    title: 'Configurações Motor'
+    size_hint_y: 0.45
+    size_hint_x: 0.4
+    heigth: 300
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols:2
+            rows:2
+            Label:
+                text: 'Frequência do motor'
+                font_size: 14
+            TextInput:
+                id: txt_freq
+                text: ''
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+            Label:
+                text: 'Tempo de partida do motor'
+                font_size: 13
+            TextInput:
+                id: txt_t_part
+                text: ''
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            heigth: 30
+            Button:
+                size_hint_y: None
+                heigth: 30
+                text: 'Configurar' 
+                on_release:
+                    app.root.setFreq(txt_freq.text,txt_t_part.text)
+                    root.dismiss()
+            Button:
+                size_hint_y: None
+                heigth: 30
+                text: 'Fechar'
+                on_release:
+                    root.dismiss()
+                    
